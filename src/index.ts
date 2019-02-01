@@ -8,7 +8,7 @@ window.onload = () => {
     let gl = cnv.getContext("webgl") || cnv.getContext("experimental-webgl");
 
     // config gl    
-    
+
 
     // init statics
 
@@ -25,7 +25,7 @@ window.onload = () => {
 
     gl.useProgram(shaderProg);
     gl.enableVertexAttribArray(gl.getAttribLocation(shaderProg, "aVertPos"));
-    
+
     // model
     let verts = [
         0.0, 0.0, 0.0,
@@ -34,11 +34,12 @@ window.onload = () => {
     ];
     let inds = [0, 1, 2];
 
+    // set buffers
     let vertBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
     // gl.bindBuffer(gl.ARRAY_BUFFER, null); // warn
-    
+
     let indBuf = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indBuf);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(inds), gl.STATIC_DRAW);
@@ -46,19 +47,37 @@ window.onload = () => {
 
     // gl.disableVertexAttribArray(gl.getAttribLocation(shaderProg, "aVertPos"));
 
-    // gl.uniform1f(gl.getUniformLocation(shaderProg, "uTime"), 0);
 
     // draw
     gl.viewport(0, 0, cnv.width, cnv.height);
+    gl.vertexAttribPointer(gl.getAttribLocation(shaderProg, "aVertPos"), 3, gl.FLOAT, false, 0, 0);
+
     let c = 0;
-    setInterval(() => {
-        c+=0.001;
-        gl.clearColor(c, 0, 0, 1);
+    function loop() {
+        c += 0.1;
+
+        gl.uniform1f(gl.getUniformLocation(shaderProg, "uTime"), Math.sin(c) / 2);
+
+        gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
+        gl.drawElements(gl.TRIANGLES, inds.length, gl.UNSIGNED_SHORT, 0);
 
-        gl.vertexAttribPointer(gl.getAttribLocation(shaderProg, "aVertPos"), 3, gl.FLOAT, false, 0, 0);
-        gl.drawElements(gl.TRIANGLES, inds.length, gl.UNSIGNED_SHORT, 0); 
-    }, 1);
+        window.requestAnimationFrame(loop);
+    }
+    window.requestAnimationFrame(loop);
+
+    // let c = 0;
+    // setInterval(() => {
+    //     c += 0.001;
+    //     gl.uniform1f(gl.getUniformLocation(shaderProg, "uTime"), c);
+
+    //     gl.clearColor(0, 0, 0, 1);
+    //     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    //     gl.drawElements(gl.TRIANGLES, inds.length, gl.UNSIGNED_SHORT, 0);
+
+    // }, 1);
+
 
 };

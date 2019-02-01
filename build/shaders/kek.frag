@@ -2,15 +2,17 @@
 precision mediump float;
 #endif
 
+vec2 uResol = vec2(500, 500);
+
 void main() { 
     
-    // vec2 st = gl_FragCoord.xy;
-    // st.x /= u_resolution.x;
-    // st.y /= u_resolution.y;
+    vec2 uv = gl_FragCoord.xy;
+    uv.xy /= uResol.xy;
 
-    // vec3 color = vec3(0.);
-    // color.r = (st.x);
-    // color.g = abs(sin(u_time * 8.0));
 
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+
+    vec3 color = vec3(0.);
+    color.r = (uv.x - 250. / uResol.x) * 4.;
+
+    gl_FragColor = vec4(color, 1.0);
 }
