@@ -138,10 +138,11 @@ window.onload = function () {
     // draw
     gl.viewport(0, 0, cnv.width, cnv.height);
     gl.vertexAttribPointer(gl.getAttribLocation(shaderProg, "aVertPos"), 3, gl.FLOAT, false, 0, 0);
+    var uTime = gl.getUniformLocation(shaderProg, "uTime");
     var c = 0;
     function loop() {
-        c += 0.1;
-        gl.uniform1f(gl.getUniformLocation(shaderProg, "uTime"), Math.sin(c) / 2);
+        c += 1 / 15;
+        gl.uniform1f(uTime, Math.sin(c) / 2);
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawElements(gl.TRIANGLES, inds.length, gl.UNSIGNED_SHORT, 0);
