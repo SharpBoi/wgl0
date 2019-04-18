@@ -107,7 +107,7 @@ window.onload = function () {
     var gl = cnv.getContext("webgl") || cnv.getContext("experimental-webgl");
     // config gl    
     // init statics
-    // shader getting
+    // shader getting  
     ShaderLoader_1.default.Init(gl);
     var frag = ShaderLoader_1.default.LoadShader("./shaders/kek.frag", gl.FRAGMENT_SHADER);
     var vert = ShaderLoader_1.default.LoadShader("./shaders/kek.vert", gl.VERTEX_SHADER);
@@ -117,35 +117,87 @@ window.onload = function () {
     gl.attachShader(shaderProg, frag);
     gl.linkProgram(shaderProg);
     gl.useProgram(shaderProg);
-    gl.enableVertexAttribArray(gl.getAttribLocation(shaderProg, "aVertPos"));
     // model
     var verts = [
         0.0, 0.0, 0.0,
-        0.5, 0.0, 0.0,
-        0.0, 0.5, 0.0
+        0.0, 0.5, 0.0,
+        0.5, 0.5, 0.0,
+        0.5, 0.0, 0.0
     ];
-    var inds = [0, 1, 2];
-    // set buffers
+    var inds = [0, 1, 2, 0, 2, 3];
+    var offset = [0, 0, 0];
+    var uv = [
+        0, 0,
+        0, 1,
+        1, 1,
+        1, 0
+    ];
+    // set UV buffer
+    var uvBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    // set VERT buffers
     var vertBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
     // gl.bindBuffer(gl.ARRAY_BUFFER, null); // warn
+    // set INDS buffers
     var indBuf = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indBuf);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(inds), gl.STATIC_DRAW);
     // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null); // warn
+    // create tex
+    var tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    var texData = new Uint8Array([
+        255, 0, 0, 255,
+        255, 0, 0, 255,
+        0, 255, 0, 255,
+        0, 255, 0, 255,
+    ]);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, texData);
+    var unit = 1;
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    // get locats
+    var uLoc_Tex = gl.getUniformLocation(shaderProg, "uTex");
+    var uLoc_Time = gl.getUniformLocation(shaderProg, "uTime");
+    var uLoc_Offset = gl.getUniformLocation(shaderProg, "uOffset");
+    var aLoc_VertPos = gl.getAttribLocation(shaderProg, "aVertPos");
+    var aLoc_Uv = gl.getAttribLocation(shaderProg, "aFlt");
+    console.log(aLoc_VertPos);
+    console.log(aLoc_Uv);
     // gl.disableVertexAttribArray(gl.getAttribLocation(shaderProg, "aVertPos"));
     // draw
-    gl.viewport(0, 0, cnv.width, cnv.height);
-    gl.vertexAttribPointer(gl.getAttribLocation(shaderProg, "aVertPos"), 3, gl.FLOAT, false, 0, 0);
-    var uTime = gl.getUniformLocation(shaderProg, "uTime");
+    // apply tex
     var c = 0;
     function loop() {
         c += 1 / 15;
-        gl.uniform1f(uTime, Math.sin(c) / 2);
+        // pass time
+        gl.uniform1f(uLoc_Time, c);
+        // pass offset
+        offset[0] = Math.sin(c);
+        offset[1] = 0.5;
+        gl.uniform3fv(uLoc_Offset, offset);
+        // pass tex
+        gl.activeTexture(gl.TEXTURE0 + unit);
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.uniform1i(uLoc_Tex, unit);
+        // draw
+        gl.viewport(0, 0, cnv.width, cnv.height);
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.enableVertexAttribArray(aLoc_VertPos);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
+        gl.vertexAttribPointer(aLoc_VertPos, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(aLoc_Uv);
+        gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf);
+        gl.vertexAttribPointer(aLoc_Uv, 2, gl.FLOAT, false, 0, 0);
         gl.drawElements(gl.TRIANGLES, inds.length, gl.UNSIGNED_SHORT, 0);
+        // looping loop
         window.requestAnimationFrame(loop);
     }
     window.requestAnimationFrame(loop);
