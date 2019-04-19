@@ -18,10 +18,6 @@ void main() {
     // color.r = vTexCoord0.x + 0.5;
     
     vec2 uv = vUv;
-    float ofst = -0.0;
-    vec2 uvOff = vec2(ofst, ofst);
-    uv += uvOff;
 
     gl_FragColor = texture2D(uTex, uv);
-    // gl_FragColor = vec4(1, 1, 1, 1);
 }

@@ -105,7 +105,10 @@ window.onload = function () {
     console.log("window load");
     // get GL
     var cnv = document.getElementById("cnv");
-    gl = cnv.getContext("webgl") || cnv.getContext("experimental-webgl");
+    gl = cnv.getContext("webgl", {
+        premultipliedAlpha: false,
+        alpha: false
+    }) || cnv.getContext("experimental-webgl");
     // config gl    
     // init statics
     // shader getting  
@@ -136,20 +139,17 @@ window.onload = function () {
     var vertBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
-    // gl.bindAttribLocation(shaderProg, 0, "aVertPos");
-    // gl.bindBuffer(gl.ARRAY_BUFFER, null); // warn
+    gl.bindBuffer(gl.ARRAY_BUFFER, null); // warn
     // set INDS buffers
     var indBuf = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indBuf);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(inds), gl.STATIC_DRAW);
-    // gl.enableVertexAttribArray(1);
-    // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null); // warn    
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null); // warn    
     // set UV buffer
     var uvBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.STATIC_DRAW);
-    // gl.bindAttribLocation(shaderProg, 8, "aFlt");
-    // gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
     // use prog
     gl.linkProgram(shaderProg);
     gl.useProgram(shaderProg);
@@ -165,19 +165,15 @@ window.onload = function () {
     var aLoc_Uv = gl.getAttribLocation(shaderProg, "aUv");
     console.log(aLoc_VertPos);
     console.log(aLoc_Uv);
-    // gl.disableVertexAttribArray(gl.getAttribLocation(shaderProg, "aVertPos"));
-    // bind vert buffer to pass uv ??
-    // bind attrs
+    // enabling attrs
+    gl.enableVertexAttribArray(aLoc_VertPos);
+    gl.enableVertexAttribArray(aLoc_Uv);
+    // point attrs to each context
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indBuf);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
     gl.vertexAttribPointer(aLoc_VertPos, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf);
     gl.vertexAttribPointer(aLoc_Uv, 2, gl.FLOAT, false, 0, 0);
-    // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indBuf);
-    // enabling attrs
-    gl.enableVertexAttribArray(aLoc_VertPos);
-    gl.enableVertexAttribArray(aLoc_Uv);
-    // draw
-    // apply tex
     var c = 0;
     function loop() {
         c += 1 / 45;
@@ -194,6 +190,7 @@ window.onload = function () {
         // draw
         gl.viewport(0, 0, cnv.width, cnv.height);
         gl.clearColor(0, 0, 0, 1);
+        // gl.colorMask(false, false, false, true)
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
         // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indBuf);
@@ -264,7 +261,7 @@ function genTex(w, h) {
     // gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
     return { tex: tex, unit: unit, w: w, h: h };
 }
-function loadWGLTex(texUrl, onLoad, loadRslt) {
+function loadWGLTex(texUrl, onLoad) {
     var img = new Image();
     img.src = texUrl;
     img.onload = function () {
@@ -276,9 +273,10 @@ function loadWGLTex(texUrl, onLoad, loadRslt) {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        loadRslt = { w: img.width, h: img.height, unit: unit, tex: tex };
+        // gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         if (onLoad)
-            onLoad(loadRslt);
+            onLoad({ w: img.width, h: img.height, unit: unit, tex: tex });
     };
 }
 
