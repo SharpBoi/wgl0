@@ -19,5 +19,7 @@ void main() {
     
     vec2 uv = vUv;
 
+    uv.y = 1.0 - uv.y;
+
     gl_FragColor = texture2D(uTex, uv);
 }

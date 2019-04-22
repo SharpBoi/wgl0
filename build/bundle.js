@@ -158,35 +158,35 @@ window.onload = function () {
     var texGenRslt;
     loadWGLTex("media/imgs/test.png", function (rslt) { texGenRslt = rslt; });
     // get locats
-    var uLoc_Tex = gl.getUniformLocation(shaderProg, "uTex");
-    var uLoc_Time = gl.getUniformLocation(shaderProg, "uTime");
-    var uLoc_Offset = gl.getUniformLocation(shaderProg, "uOffset");
-    var aLoc_VertPos = gl.getAttribLocation(shaderProg, "aVertPos");
-    var aLoc_Uv = gl.getAttribLocation(shaderProg, "aUv");
-    console.log(aLoc_VertPos);
-    console.log(aLoc_Uv);
+    var u_Tex = gl.getUniformLocation(shaderProg, "uTex");
+    var u_Time = gl.getUniformLocation(shaderProg, "uTime");
+    var u_Offset = gl.getUniformLocation(shaderProg, "uOffset");
+    var a_VertPos = gl.getAttribLocation(shaderProg, "aVertPos");
+    var a_Uv = gl.getAttribLocation(shaderProg, "aUv");
+    console.log(a_VertPos);
+    console.log(a_Uv);
     // enabling attrs
-    gl.enableVertexAttribArray(aLoc_VertPos);
-    gl.enableVertexAttribArray(aLoc_Uv);
+    gl.enableVertexAttribArray(a_VertPos);
+    gl.enableVertexAttribArray(a_Uv);
     // point attrs to each context
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indBuf);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
-    gl.vertexAttribPointer(aLoc_VertPos, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(a_VertPos, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf);
-    gl.vertexAttribPointer(aLoc_Uv, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(a_Uv, 2, gl.FLOAT, false, 0, 0);
     var c = 0;
     function loop() {
         c += 1 / 45;
         // pass time
-        gl.uniform1f(uLoc_Time, c);
+        gl.uniform1f(u_Time, c);
         // pass offset
         offset[0] = Math.sin(c) * 1 / 1.5 - 1 / 4;
         offset[1] = 0.5;
-        gl.uniform3fv(uLoc_Offset, offset);
+        gl.uniform3fv(u_Offset, offset);
         // pass tex
         gl.activeTexture(gl.TEXTURE0 + texGenRslt.unit);
         gl.bindTexture(gl.TEXTURE_2D, texGenRslt.tex);
-        gl.uniform1i(uLoc_Tex, texGenRslt.unit);
+        gl.uniform1i(u_Tex, texGenRslt.unit);
         // draw
         gl.viewport(0, 0, cnv.width, cnv.height);
         gl.clearColor(0, 0, 0, 1);

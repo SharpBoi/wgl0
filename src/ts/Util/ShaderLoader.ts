@@ -1,5 +1,3 @@
-import ExtendedShader from "./ExtendedShader";
-
 export default class ShaderLoader {
 
     private static req: XMLHttpRequest;
@@ -13,7 +11,7 @@ export default class ShaderLoader {
         this.req = new XMLHttpRequest();
     }
 
-    public static LoadShaderASync(url: string, onLoad: (shader: ExtendedShader) => {}, shaderType = this.gl.FRAGMENT_SHADER) {
+    public static LoadShaderASync(url: string, onLoad: (shader: WebGLShader) => {}, shaderType = this.gl.FRAGMENT_SHADER) {
 
         this.req.open("GET", url, true);
         this.req.onreadystatechange = () => {
@@ -21,7 +19,7 @@ export default class ShaderLoader {
 
                 let content = this.req.responseText;
 
-                let shader = this.gl.createShader(shaderType) as ExtendedShader;
+                let shader = this.gl.createShader(shaderType);
                 this.gl.shaderSource(shader, content);
                 this.gl.compileShader(shader);
 
@@ -31,11 +29,11 @@ export default class ShaderLoader {
         this.req.send();
     }
 
-    public static LoadShader(url: string, shaderType = this.gl.FRAGMENT_SHADER): ExtendedShader {
+    public static LoadShader(url: string, shaderType = this.gl.FRAGMENT_SHADER) {
         this.req.open("GET", url, false);
         this.req.send();
 
-        let shader = this.gl.createShader(shaderType) as ExtendedShader;
+        let shader = this.gl.createShader(shaderType);
         this.gl.shaderSource(shader, this.req.responseText);
         this.gl.compileShader(shader);
 
